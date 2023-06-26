@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { getJwtConfig } from './config/jwt.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { PostModule } from './resources/post/post.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { APP_GUARD } from '@nestjs/core';
       limit: 10,
     }),
     AuthModule,
+    PostModule,
   ],
   providers: [
     {

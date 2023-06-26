@@ -27,7 +27,7 @@ export class AuthService {
 
       if (bcrypt.compareSync(password, user.password)) {
         return {
-          accessToken: this.jwtService.sign({ id: user.id, email: user.email }),
+          accessToken: this.jwtService.sign({ id: user.id, email: user.email, admin: user.admin }),
         };
       } else {
         throw '';

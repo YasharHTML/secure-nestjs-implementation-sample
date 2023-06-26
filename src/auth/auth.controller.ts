@@ -11,16 +11,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
-import { User } from 'src/decorators/User.decorator';
+import { AuthDto } from './dto/auth.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('authorization')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  signUp(@Body() { email, password }: { email: string; password: string }) {
+  signUp(@Body() { email, password }: AuthDto) {
     return this.authService.signUp(email, password).catch(() => {
       throw new ConflictException();
     });
@@ -28,15 +29,9 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('signin')
-  signIn(@Body() { email, password }: { email: string; password: string }) {
+  signIn(@Body() { email, password }: AuthDto) {
     return this.authService.signIn(email, password).catch(() => {
       throw new UnauthorizedException();
     });
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('/test')
-  testAuth(@User() user: { email: string; id: string }) {
-    return user;
   }
 }
