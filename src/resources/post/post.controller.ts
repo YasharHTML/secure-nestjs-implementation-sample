@@ -3,7 +3,6 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   Post,
@@ -18,16 +17,16 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Pagination } from 'src/helpers/pagination.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { User } from 'src/decorators/User.decorator';
+import { CaslAbilityFactory } from 'src/auth/casl/casl-ability.factory/casl-ability.factory';
 import { Action } from 'src/constants/Action.enum';
 import { Post as _Post } from '@app/entities';
+import { PolicyGuard } from 'src/auth/policy/policy.guard';
+import { CheckPolicies } from 'src/helpers/policy_handler.interface';
 
 @Controller('post')
 @ApiTags('post')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
-@UseInterceptors(ClassSerializerInterceptor)
 export class PostController {
   constructor(
     private readonly postService: PostService,
@@ -35,47 +34,45 @@ export class PostController {
   ) {}
 
   @Post()
-  create(@User() user: any, @Body() createPostDto: CreatePostDto) {
-    if (this.casl.createForUser(user).can(Action.Create, _Post))
-      return this.postService.create(createPostDto);
-    throw new ForbiddenException();
+  @UseGuards(PolicyGuard)
+  @CheckPolicies((handler) => handler.can(Action.Create, _Post))
+  create(@Body() createPostDto: CreatePostDto) {
+    return this.postService.create(createPostDto);
   }
 
   @Get()
+  @UseGuards(PolicyGuard)
+  @CheckPolicies((handler) => handler.can(Action.Read, _Post))
   find(
-    @User() user: any,
     @Query({
       transform: (value) => ({ limit: +value.limit, page: +value.page }),
     })
     { limit, page }: Pagination,
   ) {
-    if (this.casl.createForUser(user).can(Action.Read, _Post))
-      return this.postService.find({ limit, page });
-    throw new ForbiddenException();
+    return this.postService.find({ limit, page });
   }
 
   @Get(':id')
-  findOne(@User() user: any, @Param('id') id: string) {
-    if (this.casl.createForUser(user).can(Action.Read, _Post))
-      return this.postService.findOne(id);
-    throw new ForbiddenException();
+  @UseGuards(PolicyGuard)
+  @CheckPolicies((handler) => handler.can(Action.Read, _Post))
+  findOne(@Param('id') id: string) {
+    return this.postService.findOne(id);
   }
 
   @Put(':id')
-  update(
-    @User() user: any,
+  @UseGuards(PolicyGuard)
+  @CheckPolicies((handler) => handler.can(Action.Update, _Post))
+  async update(
     @Param('id') id: string,
     @Body() updatePostDto: UpdatePostDto,
   ) {
-    if (this.casl.createForUser(user).can(Action.Update, _Post))
-      return this.postService.update(id, updatePostDto);
-    throw new ForbiddenException();
+    return this.postService.update(id, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@User() user: any, @Param('id') id: string) {
-    if (this.casl.createForUser(user).can(Action.Create, _Post))
-      return this.postService.remove(id);
-    throw new ForbiddenException();
+  @UseGuards(PolicyGuard)
+  @CheckPolicies((handler) => handler.can(Action.Delete, _Post))
+  async remove(@Param('id') id: string) {
+    return this.postService.remove(id);
   }
 }
