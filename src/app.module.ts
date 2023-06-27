@@ -8,6 +8,8 @@ import { getJwtConfig } from './config/jwt.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { PostModule } from './resources/post/post.module';
+import { HealthModule } from './health/health.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { PostModule } from './resources/post/post.module';
     }),
     AuthModule,
     PostModule,
+    HealthModule,
+    TasksModule,
   ],
   providers: [
     {

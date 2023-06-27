@@ -23,7 +23,7 @@ import { Post as _Post } from '@app/entities';
 import { PolicyGuard } from 'src/auth/policy/policy.guard';
 import { CheckPolicies } from 'src/helpers/policy_handler.interface';
 
-@Controller('post')
+@Controller({ path: 'post', version: '1' })
 @ApiTags('post')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
@@ -62,10 +62,7 @@ export class PostController {
   @Put(':id')
   @UseGuards(PolicyGuard)
   @CheckPolicies((handler) => handler.can(Action.Update, _Post))
-  async update(
-    @Param('id') id: string,
-    @Body() updatePostDto: UpdatePostDto,
-  ) {
+  async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postService.update(id, updatePostDto);
   }
 
